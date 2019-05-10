@@ -30,7 +30,7 @@ public class OrderServiceImpl implements OrderService {
     public ServiceResponse<Order> fetch(User user, Tutorial tutorial) {
         ServiceResponse<Order> response = new ServiceResponse<>();
 
-        log.info("fetching order. user: " + user.getId() + ", tutorial: " + tutorial.getId());
+        log.info("fetching order. user : " + user.getId() + ", tutorial: " + tutorial.getId());
         Order order = repository.findByUserAndTutorial(user, tutorial);
 
         // 数据库已经有记录而且以及完成支付的话，直接返回当前订单
@@ -39,15 +39,15 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // 对于处于未支付状态的订单，向PayJS查询订单
-        if (!order.getIsPaid()) {
+        if (order != null && !order.getIsPaid()) {
             CheckRequest checkRequest = new CheckRequest(order.getPaymentId());
             CheckResponse checkResponse = payJS.apiCheck(checkRequest);
             log.info("查询到的订单状态是：" + JSONObject.toJSONString(checkResponse));
             if (checkResponse.getStatus() == 1) {
                 order.setIsPaid(true);
                 repository.save(order);
-                return response.setData(order);
             }
+            return response.setData(order);
         }
 
         // 创建新的订单

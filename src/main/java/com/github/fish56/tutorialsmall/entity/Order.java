@@ -8,8 +8,8 @@ import javax.persistence.*;
  * 订单实体
  *   名称不能和数据库的保留字冲突
  */
-@Entity(name = "order_info")
 @Data
+@Entity(name = "order_info")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -11,8 +11,12 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.PrintWriter;
 
+/**
+ * 进行统一的登录认证
+ */
 @Configuration
 @Slf4j
 public class AuthenticationInterceptor implements HandlerInterceptor {
@@ -24,8 +28,13 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        // 这是我们的登录路由，不拦截
+        if (request.getServletPath().startsWith("/github")){
+            log.debug("不拦截" + request.getServletPath() + "的请求");
+            return true;
+        }
+        log.info("getting: " + request.getRequestURL().toString());
         Cookie[] cookies = request.getCookies();
-        PrintWriter printWriter = response.getWriter();
         User user;
 
         // 遍历Cookie，寻找token
@@ -34,21 +43,23 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             if (cookie.getName().equals("github_token")){
                 log.info("用户尝试使用token登录" + cookie.getValue());
                 user = userCrudRepository.findByToken(cookie.getValue());
-                if (user == null) {
-                    // 在数据库中没有找到token对应的用户
-                    response.setStatus(401);
-                    printWriter.print("token过期或者实现");
-                    return false;
+                if (user != null) {
+
+                    log.info("用户" + user.getLogin() + "登录了");
+                    request.setAttribute("user", user);
+                    return true;
                 }
-                // 找到了用户，就放行，交给Controller层
-                request.setAttribute("user", user);
-                return true;
             }
         }
 
         log.info("没有找到token，让用户跳转到GitHub的登录页面登录");
         response.setStatus(302);
         response.setHeader("Location", authUrl);
+
+        // 将当前url记录到session，方便登陆后跳转
+        HttpSession session = request.getSession();
+        session.setAttribute("lastVisitUrl", request.getRequestURL());
+
         return false;
     }
 }

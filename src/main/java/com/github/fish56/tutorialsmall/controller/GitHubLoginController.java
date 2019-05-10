@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @RestController
 @Slf4j
@@ -24,7 +25,7 @@ public class GitHubLoginController {
     private UserCrudRepository userRepository;
 
     @RequestMapping("/github/login")
-    public Object login(@RequestParam String code, HttpServletResponse response) {
+    public Object login(@RequestParam String code, HttpServletResponse response, HttpSession session) {
         ServiceResponse<String> actionResponse = myGitHubClient.getTokenFromCode(code);
 
         if (actionResponse.hasError()) {
@@ -55,7 +56,8 @@ public class GitHubLoginController {
         response.addCookie(cookie);
 
         // 返回数据，并设置token
-        return ResponseEntity.status(200)
-                .body(userActionResponse.getData());
+        return ResponseEntity.status(302)
+                .header("Location", session.getAttribute("lastVisitUrl").toString())
+                .build();
     }
 }
