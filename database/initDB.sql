@@ -8,4 +8,4 @@ select * from user;
 
 delete from order_info where id = 1;
 
-insert into order_info(owner, price, repository_name) values ('fish56', 30, 'aa');
+insert into tutorial(id, owner, price, repository_name) values (22, 'bitfishxyz', 30, 'house');

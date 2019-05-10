@@ -14,6 +14,12 @@
 
         <#else >
         支付成功，请访问。。。。
+        <a href="${"https://github.com/" + orderResponse.data.tutorial.owner
+        + "/" + orderResponse.data.tutorial.repositoryName}">
+            ${"https://github.com/" + orderResponse.data.tutorial.owner
+            + "/" + orderResponse.data.tutorial.repositoryName}
+        </a>
+
     </#if>
 </div>
 </body>

@@ -2,6 +2,8 @@ package com.github.fish56.tutorialsmall.config;
 
 import com.github.fish56.payjs.PayJS;
 import com.github.fish56.payjs.PayJSUnirest;
+import org.eclipse.egit.github.core.client.GitHubClient;
+import org.junit.Before;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 

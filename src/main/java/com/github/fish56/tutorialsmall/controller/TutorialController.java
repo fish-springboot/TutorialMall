@@ -7,7 +7,10 @@ import com.github.fish56.tutorialsmall.repository.TutorialCrudRepository;
 import com.github.fish56.tutorialsmall.repository.UserCrudRepository;
 import com.github.fish56.tutorialsmall.service.OrderService;
 import com.github.fish56.tutorialsmall.service.ServiceResponse;
+import com.github.fish56.tutorialsmall.util.GitHubUtil;
+import com.mashape.unirest.http.Unirest;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.egit.github.core.client.GitHubClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -39,7 +42,6 @@ public class TutorialController {
 
         Tutorial tutorial = tutorialCrudRepository.findByOwnerAndRepositoryName(owner, repoName);
 
-        // todo 教程不存在，请前往。。。查阅
         if (tutorial == null) {
             log.info("用户访问的课程不存在" + owner + repoName);
 
@@ -50,12 +52,14 @@ public class TutorialController {
         }
 
         orderServiceResponse = orderService.fetch(user, tutorial);
+
+        // 发起邀请链接
+        if (orderServiceResponse.getData().getIsPaid()) {
+            GitHubUtil.inviteCollaborator(owner, repoName, user.getLogin());
+        }
+
+
         model.addAttribute("orderResponse", orderServiceResponse);
         return "tutorial";
-
-        // todo: 邀请到github
-
-
-        // return null;
     }
 }
